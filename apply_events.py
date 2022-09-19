@@ -115,6 +115,13 @@ def parse_args():
         + "Use --max_im_width to cap the resulting dimensions.",
     )
     parser.add_argument(
+        "--keep_size",
+        action="store_true",
+        default=False,
+        help="resize image width and height to the closest multiple of 128,"
+        + "and resize model prediction back to original size"
+    )
+    parser.add_argument(
         "--fuse",
         action="store_true",
         default=False,
@@ -385,6 +392,7 @@ if __name__ == "__main__":
     half = args.half
     images_paths = resolve(args.images_paths)
     keep_ratio = args.keep_ratio_128
+    keep_size = args.keep_size
     max_im_width = args.max_im_width
     n_images = args.n_images
     outdir = resolve(args.output_path) if args.output_path is not None else None
@@ -477,6 +485,7 @@ if __name__ == "__main__":
         data_paths = base_data_paths * repeats
         data_paths = data_paths[:n_images]
 
+    original_sizes = None
     with Timer(store=stores.get("data pre-processing", []), ignore=time_inference):
         # read images to numpy arrays
         data = [io.imread(str(d)) for d in data_paths]
@@ -487,6 +496,12 @@ if __name__ == "__main__":
             # to closest multiples of 128 <= max_im_width, keeping aspect ratio
             new_sizes = [to_128(d, max_im_width) for d in data]
             data = [resize(d, ns, anti_aliasing=True) for d, ns in zip(data, new_sizes)]
+        
+        elif keep_size:
+            original_sizes = [d.shape[:2] for d in data]
+            new_sizes = [(size[0] - size[0]%128, size[1] - size[1]%128) for size in original_sizes]
+            data = [resize(d, ns, anti_aliasing=True) for d, ns in zip(data, new_sizes)]
+
         else:
             # to args.target_size
             data = [resize_and_crop(d, target_size) for d in data]
@@ -607,6 +622,10 @@ if __name__ == "__main__":
 
                     im_path = Path(f"{stem}_{event}_{width}{suffix}.png")
 
+                    if keep_size:
+                        im_data = resize(im_data, original_sizes[e], anti_aliasing=True)
+                        im_data = (im_data * 255).astype(np.uint8)
+                        
                     if outdir is not None:
                         im_path = outdir / im_path
                         io.imsave(im_path, im_data)
