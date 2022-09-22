@@ -324,7 +324,13 @@ class Trainer:
                 smog = (smog * 255).astype(np.uint8)
                 wildfire = (wildfire * 255).astype(np.uint8)
 
-        return {"flood": flood, "wildfire": wildfire, "smog": smog}
+                if bin_value >= 0:
+                    mask = (mask > bin_value).to(mask.dtype)
+                mask = mask.cpu()
+                mask = mask.permute(0, 2, 3, 1).numpy()
+                mask = (mask * 255).astype(np.uint8)
+
+        return {"flood": flood, "wildfire": wildfire, "smog": smog, "mask": mask}
 
     @classmethod
     def resume_from_path(

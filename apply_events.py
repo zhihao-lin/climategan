@@ -562,7 +562,8 @@ if __name__ == "__main__":
         # -----  Change inferred data structure to a list of dicts  -----
         # --------------------------------------------------------------
         to_write = []
-        events_names = list(all_events[0].keys())
+        events_names = list(all_events[0].keys()) # ['flood', 'smog', 'wildfire', mask]
+
         for events_data in all_events:
             n_ims = len(events_data[events_names[0]])
             for i in range(n_ims):
@@ -620,10 +621,10 @@ if __name__ == "__main__":
                     else:
                         suffix = ar
 
-                    im_path = Path(f"{stem}_{event}_{width}{suffix}.png")
+                    im_path = Path(f"{stem}_{event}_{suffix}.png")
 
                     if keep_size:
-                        im_data = resize(im_data, original_sizes[e], anti_aliasing=True)
+                        im_data = resize(im_data, original_sizes[t], anti_aliasing=True)
                         im_data = (im_data * 255).astype(np.uint8)
                         
                     if outdir is not None:
