@@ -241,6 +241,10 @@ class Trainer:
         # convert numpy to tensor
         if not isinstance(x, torch.Tensor):
             x = torch.tensor(x, device=self.device)
+        # if not isinstance(mask, torch.Tensor):
+        #     mask = np.expand_dims(mask, 1)
+        #     mask = torch.tensor(mask, device=self.device)
+        #     # print('[load mask size]', mask_.size())
 
         # add batch dimension
         if len(x.shape) == 3:
