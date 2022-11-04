@@ -286,11 +286,11 @@ class Trainer:
                 segmentation = self.G.decoders["s"](z, z_depth)
                 if xla:
                     xm.mark_step()
-            with Timer(store=stores.get("mask", [])):
-                cond = self.G.make_m_cond(depth, segmentation, x)
-                # mask = self.G.mask(z=z, cond=cond, z_depth=z_depth)
-                if xla:
-                    xm.mark_step()
+            # with Timer(store=stores.get("mask", [])):
+            #     cond = self.G.make_m_cond(depth, segmentation, x)
+            #     # mask = self.G.mask(z=z, cond=cond, z_depth=z_depth)
+            #     if xla:
+            #         xm.mark_step()
 
             # apply events
             if "wildfire" not in ignore_event:
