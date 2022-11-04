@@ -1,5 +1,5 @@
 import argparse
-
+import os
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -475,8 +475,8 @@ if __name__ == "__main__":
 
     # find all images
     data_paths = sorted(find_images(images_paths))
-    # mask_all = np.load(os.path.join(images_paths, 'mask.npy'))
-    # mask_list = [mask_all[i] for i in range(mask_all.shape[0])]
+    mask_all = np.load(os.path.join(images_paths, '../mask.npy'))
+    mask_list = [mask_all[i] for i in range(mask_all.shape[0])]
 
     base_data_paths = data_paths
     # filter images
@@ -504,7 +504,7 @@ if __name__ == "__main__":
             original_sizes = [d.shape[:2] for d in data]
             new_sizes = [(size[0] - size[0]%128, size[1] - size[1]%128) for size in original_sizes]
             data = [resize(d, ns, anti_aliasing=True) for d, ns in zip(data, new_sizes)]
-            # mask_list = [resize(m, ns, anti_aliasing=True) for m, ns in zip(mask_list, new_sizes)]
+            mask_list = [resize(m, ns, anti_aliasing=True) for m, ns in zip(mask_list, new_sizes)]
 
         else:
             # to args.target_size
@@ -530,7 +530,7 @@ if __name__ == "__main__":
         for b in tqdm(range(n_batchs), desc="Infering events", unit="batch"):
 
             images = data[b * batch_size : (b + 1) * batch_size]
-            # mask   = mask_list[b * batch_size : (b + 1) * batch_size]
+            mask   = mask_list[b * batch_size : (b + 1) * batch_size]
             if not images:
                 continue
 
@@ -544,6 +544,7 @@ if __name__ == "__main__":
                 bin_value=bin_value,
                 half=half,
                 cloudy=cloudy,
+                mask=mask
             )
 
             # save resized and cropped image

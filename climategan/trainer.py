@@ -226,6 +226,7 @@ class Trainer:
         cloudy=False,
         auto_resize_640=False,
         ignore_event=set(),
+        mask:np.array=None,
     ):
         """
         Create a dictionnary of events from a numpy or tensor,
@@ -241,10 +242,10 @@ class Trainer:
         # convert numpy to tensor
         if not isinstance(x, torch.Tensor):
             x = torch.tensor(x, device=self.device)
-        # if not isinstance(mask, torch.Tensor):
-        #     mask = np.expand_dims(mask, 1)
-        #     mask = torch.tensor(mask, device=self.device)
-        #     # print('[load mask size]', mask_.size())
+        if not isinstance(mask, torch.Tensor):
+            mask = np.expand_dims(mask, 1)
+            mask = torch.tensor(mask, device=self.device)
+            # print('[load mask size]', mask_.size())
 
         # add batch dimension
         if len(x.shape) == 3:
@@ -287,7 +288,7 @@ class Trainer:
                     xm.mark_step()
             with Timer(store=stores.get("mask", [])):
                 cond = self.G.make_m_cond(depth, segmentation, x)
-                mask = self.G.mask(z=z, cond=cond, z_depth=z_depth)
+                # mask = self.G.mask(z=z, cond=cond, z_depth=z_depth)
                 if xla:
                     xm.mark_step()
 
